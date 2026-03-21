@@ -11,13 +11,13 @@ class ProdutoListView(ListView):
 
 class ProdutoCreateView(CreateView):
     model = Produto
-    fields = ['nome','preco','categorias','descricao','imagem']
+    fields = ['nome','preco','categoria','descricao','imagem']
     template_name = 'produtos/form.html'
     success_url = reverse_lazy('lista_produtos')
 
 class ProdutoUpdateView(UpdateView):
     model = Produto
-    fields = ['nome','preco','categorias','descricao','imagem']
+    fields = ['nome','preco','categoria','descricao','imagem']
     template_name = 'produtos/form.html'
     success_url = reverse_lazy('lista_produtos')
 
