@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{%load static%}
+
+{%block title%}Produtos{%endblock%}
+
+{%block content%}
+<div class="container">
+    <h1>Produtos</h1>
+    <div class="filtro">
+        <input type="text" id="filtro-nome" placeholder="Filtar por nome...">
+        <select id="filtro-categoria">
+            <option value="">Todas as categorias</option>
+            {%for produto in produtos%}
+                <option value="{{produto.categoria}}"></option>
+            {%endfor%}
+        </select>
+        <input type="number" id="filtro-preco" placeholder="Preço Máximo">
+    </div>
+    <!-- bloc do filto de puxar dos preco-->
+    <div class ="filtro-preco-range">
+        <label for="filtro-preco-range">Preço Máximo: R$ <span id="preco-range-valor">1000</span></label>
+        <input type="range" id="filtro-preco-range" min="0" max="1000" step="1" value="1000">
+    </div>
+    <div class ="produto-grid" id="produto-grid">
+        {%for produto in produtos%}
+        <div class="produto-card" data-nome="{{produto.nome}}" data-categoria="{{produto.categoria}}" data-preco="{{produto.preco}}">
+            <img src="{{ produto.imagem.url }}" alt="{{ produto.nome }}">
+            <h3>{{ produto.nome }}</h3>
+            <p>R$ {{ produto.preco }}</p>
+            <button onclick="abrirModal('{{ produto.nome|escapejs }}', '{{ produto.categoria|escapejs }}', '{{ produto.preco }}', '{{ produto.descricao|escapejs }}', '{{ produto.imagem.url }}')">Detalhes</button>
+            <button>Comprar</button>
+        </div>
+        {% empty %}
+        <p>Nenhum produto cadastrado.</p>
+        {% endfor %}
+    </div>
+</div>
+
+<div class ="modal" id="modal-produto">
+    <div class="modal-content">
+        <img id="modal-img"src="" alt="">
+        <h2 id="modal-nome"></h2>
+        <p id="modal-categoria"></p>
+        <p id="modal-preco"></p>
+        <p  id="modal-desc"></p>
+        <button class="modal-close" onclick="fecharModal()">Fechar</button>
+    </div>
+</div>
+
+<script>
+function abrirModal(nome, categoria, preco, descricao, imagem){
+    document.getElementById('modal-nome').textContent=nome;
+    document.getElementById('modal-categoria').textContent='Categoria: ' + categoria;
+    document.getElementById('modal-preco').textContent='Preço: R$ '+ preco;
+    document.getElementById('modal-desc').textContent=descricao;
+    document.getElementById('modal-img').src = imagem
+    document.getElementById('modal-produto').style.display='flex';
+}
+function fecharModal(){
+    document.getElementById('modal-produto').style.display='none';
+}
+
+//filtro js
+const filtroNome= document.getElementById('filtro-nome');
+const filtroCategoria= document.getElementById('filtro-categoria');
+const filtroPreco= document.getElementById('filtro-preco');
+const cards= document.querySelectorAll('.produto-card');
+const filtroPrecoRange= document.getElementById('filtro-preco-range');
+const filtroPrecoValor= document.getElementById('preco-range-valor');
+
+function filtrarProdutos() {
+    const nome = filtroNome.value.toLowerCase();
+    const categoria = filtroCategoria.value;
+    const preco = parseFloat(filtroPrecoRange.value);
+    cards.forEach(card => {
+        const cardNome = card.getAttribute('data-nome').toLowerCase();
+        const cardCategoria = card.getAttribute('data-categoria');
+        const cardPreco = parseFloat(card.getAttribute('data-preco'));
+        let mostrar = true;
+        if (nome && !cardNome.includes(nome)) mostrar = false;
+        if (categoria && cardCategoria !== categoria) mostrar = false;
+        if (!isNaN(preco) && cardPreco > preco) mostrar = false;
+        card.style.display = mostrar ? 'flex' : 'none';
+    });
+}
+filtroNome.addEventListener('input', filtrarProdutos);
+filtroCategoria.addEventListener('change', filtrarProdutos);
+filtroPreco.addEventListener('input', filtrarProdutos);
+filtroPrecoRange.addEventListener('input', functio(){
+    precoRangeValor.textContent= filtroPrecoRange.value;
+    filtrarProdutos();
+});
+</script>
+{%endblock%}
